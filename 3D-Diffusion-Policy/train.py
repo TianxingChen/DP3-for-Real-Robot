@@ -8,6 +8,7 @@ if __name__ == "__main__":
     os.chdir(ROOT_DIR)
 
 import os
+import pdb
 import hydra
 import torch
 import dill
@@ -16,15 +17,20 @@ import pathlib
 from torch.utils.data import DataLoader
 import copy
 import random
-import wandb
+# import wandb
 import tqdm
 import numpy as np
 from termcolor import cprint
 import shutil
 import time
 import threading
+import sys
+sys.path.insert(0, '../')
+sys.path.append('3D-Diffusion-Policy/env_runner')
+sys.path.append('3D-Diffusion-Policy/diffusion_policy_3d/policy')
+
 from hydra.core.hydra_config import HydraConfig
-from diffusion_policy_3d.policy.dp3 import DP3
+from diffusion_policy_3d.policy.test_dp3 import Test_DP3
 from diffusion_policy_3d.dataset.base_dataset import BaseDataset
 from diffusion_policy_3d.env_runner.base_runner import BaseRunner
 from diffusion_policy_3d.common.checkpoint_util import TopKCheckpointManager
