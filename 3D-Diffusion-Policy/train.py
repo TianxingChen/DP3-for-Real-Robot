@@ -30,7 +30,7 @@ sys.path.append('3D-Diffusion-Policy/env_runner')
 sys.path.append('3D-Diffusion-Policy/diffusion_policy_3d/policy')
 
 from hydra.core.hydra_config import HydraConfig
-from diffusion_policy_3d.policy.test_dp3 import Test_DP3
+from diffusion_policy_3d.policy.dp3 import DP3
 from diffusion_policy_3d.dataset.base_dataset import BaseDataset
 from diffusion_policy_3d.env_runner.base_runner import BaseRunner
 from diffusion_policy_3d.common.checkpoint_util import TopKCheckpointManager
