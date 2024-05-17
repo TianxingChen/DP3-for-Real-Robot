@@ -45,6 +45,7 @@ class RobotRunner(BaseRunner):
         self.logger_util_test = logger_util.LargestKRecorder(K=3)
         self.logger_util_test10 = logger_util.LargestKRecorder(K=5)
         self.obs = deque(maxlen=n_obs_steps+1)
+        self.env = None
 
     def stack_last_n_obs(self, all_obs, n_steps):
         assert(len(all_obs) > 0)
@@ -112,6 +113,7 @@ class RobotRunner(BaseRunner):
     def run(self, policy: BasePolicy):
         device = policy.device
         dtype = policy.dtype
+        env = self.env
 
         all_goal_achieved = []
         all_success_rates = []
