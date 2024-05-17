@@ -12,6 +12,7 @@ from diffusion_policy_3d.common.pytorch_util import dict_apply
 from diffusion_policy_3d.env_runner.base_runner import BaseRunner
 import diffusion_policy_3d.common.logger_util as logger_util
 from termcolor import cprint
+from queue import deque
 
 
 class RobotRunner(BaseRunner):
@@ -43,7 +44,46 @@ class RobotRunner(BaseRunner):
 
         self.logger_util_test = logger_util.LargestKRecorder(K=3)
         self.logger_util_test10 = logger_util.LargestKRecorder(K=5)
+        self.obs = deque(maxlen=n_obs_steps+1)
 
+    def stack_last_n_obs(self, all_obs, n_steps):
+        assert(len(all_obs) > 0)
+        all_obs = list(all_obs)
+        if isinstance(all_obs[0], np.ndarray):
+            result = np.zeros((n_steps,) + all_obs[-1].shape, 
+                dtype=all_obs[-1].dtype)
+            start_idx = -min(n_steps, len(all_obs))
+            result[start_idx:] = np.array(all_obs[start_idx:])
+            if n_steps > len(all_obs):
+                # pad
+                result[:start_idx] = result[start_idx]
+        elif isinstance(all_obs[0], torch.Tensor):
+            result = torch.zeros((n_steps,) + all_obs[-1].shape, 
+                dtype=all_obs[-1].dtype)
+            start_idx = -min(n_steps, len(all_obs))
+            result[start_idx:] = torch.stack(all_obs[start_idx:])
+            if n_steps > len(all_obs):
+                # pad
+                result[:start_idx] = result[start_idx]
+        else:
+            raise RuntimeError(f'Unsupported obs type {type(all_obs[0])}')
+        return result
+        
+
+    def update_obs(self, current_obs):
+        self.obs.append(current_obs)
+
+    def get_n_steps_obs(self):
+        assert(len(self.obs) > 0), 'no observation is recorded, please update obs first'
+
+        result = dict()
+        for key in self.obs[0].keys():
+            result[key] = self.stack_last_n_obs(
+                [obs[key] for obs in self.obs],
+                self.n_obs_steps
+            )
+
+        return result
 
     def get_action(self, policy: BasePolicy, obs=None) -> bool: # by tianxing chen
         if obs == None:
@@ -72,7 +112,6 @@ class RobotRunner(BaseRunner):
     def run(self, policy: BasePolicy):
         device = policy.device
         dtype = policy.dtype
-        env = self.env
 
         all_goal_achieved = []
         all_success_rates = []
