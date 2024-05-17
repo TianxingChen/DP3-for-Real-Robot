@@ -69,7 +69,9 @@ class RobotRunner(BaseRunner):
         else:
             raise RuntimeError(f'Unsupported obs type {type(all_obs[0])}')
         return result
-        
+    
+    def reset_obs(self):
+        self.obs.clear()
 
     def update_obs(self, current_obs):
         self.obs.append(current_obs)
